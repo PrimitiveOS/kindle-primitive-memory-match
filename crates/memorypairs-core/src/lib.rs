@@ -1,4 +1,4 @@
-//! A deterministic deck, turn rules, and saved records for Memory Pairs.
+//! A deterministic deck, turn rules, and saved records for Memory Match.
 
 use serde::{Deserialize, Serialize};
 
@@ -194,9 +194,17 @@ impl Game {
                     Revealed::Mismatch(first, index)
                 }
             }
-            Revealed::Mismatch(first, second) if index == first || index == second => return false,
-            Revealed::None | Revealed::Mismatch(_, _) => Revealed::One(index),
+            Revealed::Mismatch(_, _) => return false,
+            Revealed::None => Revealed::One(index),
         };
+        true
+    }
+
+    pub fn hide_mismatch(&mut self) -> bool {
+        if !self.mismatch() {
+            return false;
+        }
+        self.state.revealed = Revealed::None;
         true
     }
 
@@ -267,7 +275,7 @@ mod tests {
     }
 
     #[test]
-    fn mismatch_remains_until_the_next_hidden_card_is_opened() {
+    fn mismatch_blocks_turns_until_both_cards_are_hidden() {
         let mut game = Game::new(Board::Medium, 4);
         let other = (1..game.board().cards())
             .find(|&index| game.deck[index] != game.deck[0])
@@ -280,9 +288,12 @@ mod tests {
         assert!(game.turn(other));
         assert!(game.mismatch());
         assert!(!game.turn(other));
-        assert!(game.turn(next));
+        assert!(!game.turn(next));
+        assert!(game.hide_mismatch());
+        assert!(!game.hide_mismatch());
         assert_eq!(game.card(0), Card::Hidden);
         assert_eq!(game.card(other), Card::Hidden);
+        assert!(game.turn(next));
         assert_eq!(game.attempts(), 1);
     }
 

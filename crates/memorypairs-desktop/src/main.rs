@@ -36,8 +36,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     assert_eq!(app.input(Input::Tap(1082.0, 454.0)), Change::Partial);
     assert!(app.game.mismatch());
-    assert_eq!(app.input(Input::Tap(482.0, 454.0)), Change::Partial);
+    let deadline = app.deadline().expect("a mismatch schedules one redraw");
+    assert_eq!(app.input(Input::Tap(482.0, 454.0)), Change::None);
+    assert_eq!(
+        app.tick(deadline - std::time::Duration::from_millis(1)),
+        Change::None
+    );
+    assert!(app.game.mismatch());
+    assert_eq!(app.tick(deadline), Change::Partial);
     assert!(!app.game.mismatch());
+    assert_eq!(app.deadline(), None);
+    assert_eq!(app.tick(deadline), Change::None);
+    assert_eq!(app.input(Input::Tap(482.0, 454.0)), Change::Partial);
+    assert!(app.game.one_revealed());
 
     let mut large = View::preview(Board::Large, 2026);
     for (x, y) in [

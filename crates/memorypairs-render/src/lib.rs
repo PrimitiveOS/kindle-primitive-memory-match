@@ -1,7 +1,7 @@
 use std::{
     fs, io,
     path::PathBuf,
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
 use memorypairs_core::{Board, Card, Game};
@@ -11,6 +11,7 @@ use primitive_ui::{
     CAPTION, PAPER, SECONDARY,
 };
 
+const MISMATCH_DELAY: Duration = Duration::from_secs(1);
 const BACK: Icon = Icon {
     stroke: &["M12 3 L21 12 L12 21 L3 12 Z", "M12 8 L16 12 L12 16 L8 12 Z"],
     fill: &[],
@@ -32,20 +33,23 @@ pub struct View {
     pub game: Game,
     path: Option<PathBuf>,
     pending_board: Option<Board>,
+    hide_mismatch_at: Option<Instant>,
     notice: Option<&'static str>,
 }
 
 impl View {
     pub fn open(path: PathBuf) -> Self {
-        let game = fs::read(&path)
+        let mut game = fs::read(&path)
             .ok()
             .and_then(|bytes| serde_json::from_slice(&bytes).ok())
             .map(Game::restore)
             .unwrap_or_else(|| Game::new(Board::Medium, random_seed()));
+        game.hide_mismatch();
         Self {
             game,
             path: Some(path),
             pending_board: None,
+            hide_mismatch_at: None,
             notice: None,
         }
     }
@@ -55,6 +59,7 @@ impl View {
             game: Game::new(board, seed),
             path: None,
             pending_board: None,
+            hide_mismatch_at: None,
             notice: None,
         }
     }
@@ -73,6 +78,11 @@ impl View {
             self.pending_board = Some(board);
             return Change::Full;
         }
+        self.restart(board)
+    }
+
+    fn restart(&mut self, board: Board) -> Change {
+        self.hide_mismatch_at = None;
         self.game.restart(board, random_seed());
         self.changed(Change::Full)
     }
@@ -86,8 +96,7 @@ impl View {
             };
             self.pending_board = None;
             if action == SheetAction::Confirm {
-                self.game.restart(board, random_seed());
-                return self.changed(Change::Full);
+                return self.restart(board);
             }
             return Change::Full;
         }
@@ -107,7 +116,11 @@ impl View {
 
         let card = (0..board.cards()).find(|&index| card_rect(width, board, index).contains(x, y));
         if card.is_some_and(|index| self.game.turn(index)) {
-            return self.changed(Change::Partial);
+            let change = self.changed(Change::Partial);
+            if self.game.mismatch() {
+                self.hide_mismatch_at = Some(Instant::now() + MISMATCH_DELAY);
+            }
+            return change;
         }
         Change::None
     }
@@ -119,6 +132,7 @@ impl View {
             let card = self.game.card(index);
             let pressed = card == Card::Hidden
                 && self.pending_board.is_none()
+                && !self.game.mismatch()
                 && canvas.control_pressed(rect, false);
             let (symbol, filled, border) = match card {
                 Card::Hidden => (BACK, pressed, 3),
@@ -152,7 +166,7 @@ impl View {
 impl App for View {
     fn draw(&self, canvas: &mut Canvas) {
         let width = canvas.bounds().w;
-        header(canvas, "Memory Pairs", "Done");
+        header(canvas, "Memory Match", "Done");
         let board = self.game.board();
         canvas.card(screen_rect(width, 40, 165, 1184, 111));
         canvas.text(
@@ -184,7 +198,7 @@ impl App for View {
         let instruction = if self.game.complete() {
             "All pairs found."
         } else if self.game.mismatch() {
-            "Tap a different card to continue."
+            "No match."
         } else if self.game.one_revealed() {
             "Turn over a second card."
         } else {
@@ -230,8 +244,26 @@ impl App for View {
                 Change::Full
             }
             Input::PageBack => Change::Exit,
+            Input::Wake => self.tick(Instant::now()),
             _ => Change::None,
         }
+    }
+
+    fn deadline(&self) -> Option<Instant> {
+        self.hide_mismatch_at
+    }
+
+    fn tick(&mut self, now: Instant) -> Change {
+        if self
+            .hide_mismatch_at
+            .is_some_and(|deadline| now >= deadline)
+        {
+            self.hide_mismatch_at = None;
+            if self.game.hide_mismatch() {
+                return self.changed(Change::Partial);
+            }
+        }
+        Change::None
     }
 
     fn save(&mut self) -> io::Result<()> {
@@ -288,4 +320,57 @@ pub fn draw_icon(canvas: &mut Canvas) {
     canvas.icon(Rect::new(43, 77, 91, 91), BACK, BLACK);
     canvas.panel(Rect::new(96, 26, 128, 165), 61, 23, BLACK);
     canvas.icon(Rect::new(112, 62, 97, 97), SYMBOLS[2], PAPER);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn tap_card(app: &mut View, index: usize) -> Change {
+        let card = card_rect(WIDTH as i32, app.game.board(), index);
+        app.input(Input::Tap(
+            (card.x + card.w / 2) as f32,
+            (card.y + card.h / 2) as f32,
+        ))
+    }
+
+    #[test]
+    fn mismatch_has_one_deadline_and_blocks_card_touches_until_it_expires() {
+        let mut app = View::preview(Board::Medium, 2026);
+        assert_eq!(tap_card(&mut app, 2), Change::Partial);
+        assert_eq!(app.deadline(), None);
+        assert_eq!(tap_card(&mut app, 3), Change::Partial);
+        assert!(app.game.mismatch());
+        let deadline = app.deadline().unwrap();
+        assert_eq!(tap_card(&mut app, 1), Change::None);
+        assert_eq!(app.tick(deadline - Duration::from_millis(1)), Change::None);
+        assert_eq!(app.tick(deadline), Change::Partial);
+        assert_eq!(app.game.card(2), Card::Hidden);
+        assert_eq!(app.game.card(3), Card::Hidden);
+        assert_eq!(app.game.attempts(), 1);
+        assert_eq!(app.deadline(), None);
+        assert_eq!(app.tick(deadline), Change::None);
+        assert_eq!(tap_card(&mut app, 1), Change::Partial);
+    }
+
+    #[test]
+    fn reopened_mismatch_is_hidden_and_preserves_the_attempt() {
+        let mut app = View::preview(Board::Medium, 2026);
+        assert_eq!(tap_card(&mut app, 2), Change::Partial);
+        assert_eq!(tap_card(&mut app, 3), Change::Partial);
+        let path = std::env::temp_dir().join(format!(
+            "primitive-memorypairs-reopen-{}-{}.json",
+            std::process::id(),
+            random_seed()
+        ));
+        fs::write(&path, serde_json::to_vec(app.game.snapshot()).unwrap()).unwrap();
+        let mut reopened = View::open(path.clone());
+        fs::remove_file(path).unwrap();
+        reopened.path = None;
+        assert_eq!(reopened.deadline(), None);
+        assert_eq!(reopened.game.card(2), Card::Hidden);
+        assert_eq!(reopened.game.card(3), Card::Hidden);
+        assert_eq!(reopened.game.attempts(), 1);
+        assert_eq!(tap_card(&mut reopened, 1), Change::Partial);
+    }
 }

@@ -1,6 +1,6 @@
-# Memory Pairs
+# Memory Match
 
-Memory Pairs is an offline matching game for PrimitiveOS. Turn over cards to find ten distinct symbols across three board sizes, and try to beat your fewest attempts.
+Memory Match is an offline matching game for PrimitiveOS. Turn over cards to find ten distinct symbols across three board sizes, and try to beat your fewest attempts.
 
 | 16-card game | 20-card game in dark mode |
 | --- | --- |
@@ -9,13 +9,13 @@ Memory Pairs is an offline matching game for PrimitiveOS. Turn over cards to fin
 ## How to play
 
 - Turn over a face-down card, then turn over another to look for its match.
-- Matched cards stay visible. A mismatch stays visible until you pick a different face-down card.
+- Matched cards stay visible. Mismatched cards turn face down after one second.
 - Choose a board with 12, 16, or 20 cards. Each board size keeps its own record.
 - Open **New game** for another shuffle. You can close the app and resume your current game later.
 
 ## Install and preview
 
-Open **Store** from Primitive Launcher and search for **Memory Pairs**. See the [installation guide](INSTALL.md) for package details.
+Open **Store** from Primitive Launcher and search for **Memory Match**. See the [installation guide](INSTALL.md) for package details.
 
 Keep the shared Tools and Launcher repositories alongside this app to render the preview locally.
 

@@ -578,14 +578,14 @@ dependencies = [
 
 [[package]]
 name = "memorypairs-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "memorypairs-desktop"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "memorypairs-core",
  "memorypairs-render",
@@ -595,7 +595,7 @@ dependencies = [
 
 [[package]]
 name = "memorypairs-kindle"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "memorypairs-core",
  "memorypairs-render",
@@ -604,7 +604,7 @@ dependencies = [
 
 [[package]]
 name = "memorypairs-render"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "memorypairs-core",
  "primitive-app",

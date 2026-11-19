@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "primitive-memorypairs",
   "dir": "memorypairs",
-  "name": "Memory Pairs",
+  "name": "Memory Match",
   "subtitle": "Match symbols in fewer turns",
   "developer": {
     "name": "Primitive AI"
