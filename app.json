@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "id": "primitive-memorypairs",
+  "dir": "memorypairs",
+  "name": "Memory Pairs",
+  "subtitle": "Match symbols in fewer turns",
+  "developer": {
+    "name": "Primitive AI"
+  },
+  "categories": [
+    "games"
+  ],
+  "description": "Turn over cards to find matching monochrome symbols. Play with 12, 16, or 20 cards, beat your fewest attempts on each board size, and resume games between sessions.",
+  "repo": "https://github.com/DoanNguyenTrong/kindle-primitive-memorypairs",
+  "licence": "PolyForm-Noncommercial-1.0.0",
+  "source": "hosted",
+  "icon": "icon.png",
+  "changes": {
+    "network": false,
+    "stops_kindle_ui": false,
+    "starts_at_boot": false,
+    "root_filesystem": false,
+    "hooks": false
+  },
+  "versions": []
+}

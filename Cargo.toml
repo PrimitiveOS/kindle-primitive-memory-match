@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = ["crates/memorypairs-core", "crates/memorypairs-render", "crates/memorypairs-kindle", "crates/memorypairs-desktop"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+
+[workspace.dependencies]
+memorypairs-core = { path = "crates/memorypairs-core" }
+memorypairs-render = { path = "crates/memorypairs-render" }
+primitive-app = { path = "../doannt-kindle-tools/crates/primitive-app" }
+primitive-ui = { path = "../doannt-kindle-tools/crates/primitive-ui" }
+
+[profile.release]
+lto = true
+codegen-units = 1

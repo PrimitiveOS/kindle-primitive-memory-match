@@ -1,0 +1,11 @@
+[package]
+name = "memorypairs-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+memorypairs-core.workspace = true
+memorypairs-render.workspace = true
+primitive-app.workspace = true
+primitive-ui.workspace = true
