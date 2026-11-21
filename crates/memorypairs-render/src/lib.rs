@@ -166,7 +166,7 @@ impl View {
 impl App for View {
     fn draw(&self, canvas: &mut Canvas) {
         let width = canvas.bounds().w;
-        header(canvas, "Memory Match", "Done");
+        header(canvas, "Memory Match", "Exit");
         let board = self.game.board();
         canvas.card(screen_rect(width, 40, 165, 1184, 111));
         canvas.text(
