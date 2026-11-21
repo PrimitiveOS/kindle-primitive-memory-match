@@ -1,29 +1,48 @@
+<div align="center">
+
+<img src="icon.png" alt="Memory Match icon" width="110">
+
 # Memory Match
 
-Memory Match is an offline matching game for PrimitiveOS. Turn over cards to find ten distinct symbols across three board sizes, and try to beat your fewest attempts.
+**Match symbols in fewer turns**
 
-| 16-card game | 20-card game in dark mode |
-| --- | --- |
-| <img src="docs/images/memorypairs.png" alt="A 16-card board with a matched pair and one card face up" width="300"> | <img src="docs/images/memorypairs-playing.png" alt="A 20-card board in dark mode with two pairs matched" width="300"> |
+[![Release](https://img.shields.io/github/v/release/PrimitiveOS/kindle-primitive-memory-match?label=release)](https://github.com/PrimitiveOS/kindle-primitive-memory-match/releases) [![Licence: PolyForm-Noncommercial-1.0.0](https://img.shields.io/badge/licence-PolyForm--Noncommercial--1.0.0-blue)](LICENSE) [![Store downloads](https://img.shields.io/badge/Store%20downloads-52-brightgreen)](https://primitiveos.github.io/kindle-primitive-catalog/v1/index.json)
 
-## How to play
+[**Download**](https://github.com/PrimitiveOS/kindle-primitive-memory-match/releases/latest) · [**Install guide**](INSTALL.md) · [**Changelog**](CHANGELOG.md)
 
-- Turn over a face-down card, then turn over another to look for its match.
-- Matched cards stay visible. Mismatched cards turn face down after one second.
-- Choose a board with 12, 16, or 20 cards. Each board size keeps its own record.
-- Open **New game** for another shuffle. You can close the app and resume your current game later.
+</div>
 
-## Install and preview
+---
 
-Open **Store** from Primitive Launcher and search for **Memory Match**. See the [installation guide](INSTALL.md) for package details.
+Turn over cards to find matching monochrome symbols. Play with 12, 16, or 20 cards, beat your fewest attempts on each board size, and resume games between sessions.
 
-Keep the shared Tools and Launcher repositories alongside this app to render the preview locally.
+## Quick start
 
-```sh
-cargo test --workspace --locked
-cargo run --locked -p memorypairs-desktop -- build/previews
-```
+After setting up PrimitiveOS, open **Store** from Primitive Launcher. Choose **Memory Match** under **Apps**,
+tap **Get**, and open it from the Launcher grid. The [install guide](INSTALL.md) also covers the standalone USB package.
 
-## License
+## Highlights
+
+- Turn over cards to find matching monochrome symbols.
+- Play with 12, 16, or 20 cards, beat your fewest attempts on each board size, and resume games between sessions.
+
+## Status
+
+| Device | Status |
+|---|---|
+| Kindle Oasis 3 (1264 × 1680, firmware 5.18.2) | Tested on hardware |
+
+**Current version: 0.1.2.** Changes are in [CHANGELOG.md](CHANGELOG.md).
+
+## Downloads
+
+**52 downloads** from Store, as of 2026-11-21. Store shows the same count on the app page.
+The count is GitHub downloads of this app's release packages, from the [Store catalog](https://primitiveos.github.io/kindle-primitive-catalog/v1/index.json).
+
+## Documentation
+
+[Install guide](INSTALL.md) · [Changelog](CHANGELOG.md)
+
+## Licence
 
 The code uses the [PolyForm Noncommercial 1.0.0 license](LICENSE). Documentation, artwork, and screenshots use the [CC BY-NC-SA 4.0 license](LICENSE-DOCS).
